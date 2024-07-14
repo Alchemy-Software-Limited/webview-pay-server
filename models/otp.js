@@ -1,6 +1,8 @@
 // Define the MongoDB schema and model
 const mongoose = require("mongoose");
 const {Schema} = require("mongoose");
+const httpStatus = require("http-status");
+const ApiError = require("../errors/ApiError");
 
 const otpSchema = new Schema({
     otp:{
@@ -36,13 +38,14 @@ otpSchema.pre("save", async function (next) {
 
     try {
         const invalidatedOtp = await OTP.findOne({
-            userId: otp.userId,
+            email: otp.email,
             expiresAt: { $lt: new Date() }
         });
 
 
         if (invalidatedOtp) {
             await OTP.deleteOne({ _id: invalidatedOtp._id });
+            throw new ApiError(httpStatus.BAD_REQUEST, "OTP is expired. Request for a new one.")
         }
 
         next();
