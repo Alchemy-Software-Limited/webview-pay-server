@@ -48,45 +48,39 @@
 // });
 /*----------------delete all data----------------*/
 
-
-
-
-
-
-
-
-
-
-require("dotenv").config()
-const express = require('express');
-const path = require('path');
-const cors = require('cors');
-const User = require('../models/user')
-const cookieParser = require("cookie-parser")
+require("dotenv").config();
+const express = require("express");
+const path = require("path");
+const cors = require("cors");
+const User = require("../models/user");
+const cookieParser = require("cookie-parser");
 const authenticate = require("../middlewares/auth");
-const bcrypt = require("bcrypt")
-const ApiError = require("../errors/ApiError")
-const httpStatus = require("http-status")
-const sendResponse = require("../utils/send-response")
+const bcrypt = require("bcrypt");
+const ApiError = require("../errors/ApiError");
+const httpStatus = require("http-status");
+const sendResponse = require("../utils/send-response");
 const mongoose = require("mongoose");
 const fs = require("fs");
 const loginService = require("../lib/auth");
-const {createOtp, verifyOtp} = require("../lib/otp");
-const {generateJwtToken} = require("../helpers/jwt-helpers");
+const { createOtp, verifyOtp } = require("../lib/otp");
+const { generateJwtToken } = require("../helpers/jwt-helpers");
 const config = require("../config");
-const { rateLimit } = require('express-rate-limit')
-var MongoStore = require('rate-limit-mongo');
-const {getPlans, getPlanById} = require("../lib/plans");
-const {createCustomer, createSubscription, cancelSubscription, getSubscription} = require("../lib/customer");
-
-
+const { rateLimit } = require("express-rate-limit");
+var MongoStore = require("rate-limit-mongo");
+const { getPlans, getPlanById } = require("../lib/plans");
+const {
+	createCustomer,
+	createSubscription,
+	cancelSubscription,
+	getSubscription,
+} = require("../lib/customer");
 
 const app = express();
-app.use(cors())
+app.use(cors());
 app.use(express.json());
-app.use(cookieParser())
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-app.use("/images", express.static('public/images'))
+app.use("/images", express.static("public/images"));
 const limiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	limit: 10, // Limit each IP to 100 requests per 15 minutes
@@ -96,44 +90,36 @@ const limiter = rateLimit({
 	legacyHeaders: false,
 	standardHeaders: true,
 	max: 20,
-	// store: new MongoStore({
-	// 	uri: config.db_uri,
-	// 	user: 'sadman.09.iiuc',
-	// 	password: 'wcqaV@AM#LF=U4ReZJ-8+b',
-	// 	// should match windowMs
-	// 	expireTimeMs: 15 * 60 * 1000,
-	// 	errorHandler: console.error.bind(null, 'rate-limit-mongo')
-	// 	// see Configuration section for more options and details
-	// }),
 });
-// app.use(limiter)
+app.use(limiter);
 
-
-
-app.get('/', (_req, res) => {
+app.get("/", (_req, res) => {
 	res.send("APPLICATION SERVER IS UP");
-})
-
+});
 
 /* Main business logics start
-* =========================== */
+ * =========================== */
 /*--------------login-------------*/
-app.post('/auth/login', async (req,res, next) => {
-	try{
-		    const { ...loginData } = req.body;
+app.post("/auth/login", async (req, res, next) => {
+	try {
+		const { ...loginData } = req.body;
 
 		const data = await createOtp(loginData);
 		const payload = {
 			email: data.email,
 			isVerified: data.isVerified,
 		};
-		const token = generateJwtToken(payload, config.jwt.jwt_secret, config.jwt.jwt_expires);
-		    res.cookie('el_token', token, {
-		      secure: process.env.APP_ENV !== 'development',
-		      httpOnly: true,
-		      maxAge: 1000 * 60 * 60 * 24 * 7,
-		      sameSite: process.env.APP_ENV === 'development' ? 'lax' : 'none',
-		    });
+		const token = generateJwtToken(
+			payload,
+			config.jwt.jwt_secret,
+			config.jwt.jwt_expires
+		);
+		res.cookie("el_token", token, {
+			secure: process.env.APP_ENV !== "development",
+			httpOnly: true,
+			maxAge: 1000 * 60 * 60 * 24 * 7,
+			sameSite: process.env.APP_ENV === "development" ? "lax" : "none",
+		});
 		// Send the token as the response
 		sendResponse(res, {
 			status: httpStatus.OK,
@@ -141,195 +127,186 @@ app.post('/auth/login', async (req,res, next) => {
 			message: payload.isVerified ? "Login successful" : "OTP is sent to email",
 			data: {
 				token,
-			}
-		})
-	}catch(e){
-		next(e)
+			},
+		});
+	} catch (e) {
+		next(e);
 	}
-
-})
+});
 /*--------------login-------------*/
 
 /*---------------verify otp-----------------*/
-app.post("/otp/verify", async(req, res, next) => {
-	try{
+app.post("/otp/verify", async (req, res, next) => {
+	try {
 		const { ...otpData } = req.body;
 		const data = await verifyOtp(otpData);
-		if(!data) throw new ApiError(
-			httpStatus.BAD_REQUEST,
-			'OTP verification failed'
-		);
+		if (!data)
+			throw new ApiError(httpStatus.BAD_REQUEST, "OTP verification failed");
 		const payload = {
 			email: data.email,
-			isVerified: data.isVerified
-		}
-		const token = generateJwtToken(payload, config.jwt.jwt_secret, config.jwt.jwt_expires);
-		res.cookie('el_token', token, {
-			secure: process.env.APP_ENV !== 'development',
+			isVerified: data.isVerified,
+		};
+		const token = generateJwtToken(
+			payload,
+			config.jwt.jwt_secret,
+			config.jwt.jwt_expires
+		);
+		res.cookie("el_token", token, {
+			secure: process.env.APP_ENV !== "development",
 			httpOnly: true,
 			maxAge: 1000 * 60 * 60 * 24 * 7,
-			sameSite: process.env.APP_ENV === 'development' ? 'lax' : 'none',
+			sameSite: process.env.APP_ENV === "development" ? "lax" : "none",
 		});
 		const result = {
 			...data,
-			token
-		}
+			token,
+		};
 		sendResponse(res, {
 			status: httpStatus.OK,
 			success: true,
 			message: "OTP verification successful",
-			data: result
-		})
-	}catch(e){
-		next(e)
+			data: result,
+		});
+	} catch (e) {
+		next(e);
 	}
-})
+});
 /*---------------verify otp-----------------*/
 
 /*------get plans -------------*/
-app.get("/plans", async(req, res, next) => {
-	try{
+app.get("/plans", async (req, res, next) => {
+	try {
 		const plans = await getPlans();
 		sendResponse(res, {
 			status: httpStatus.OK,
 			success: true,
 			message: "Plans retrieved successfully",
-			data: plans
-		})
-	}catch(e){
-		next(e)
+			data: plans,
+		});
+	} catch (e) {
+		next(e);
 	}
-})
+});
 /*------get plans -------------*/
 
 /*------------get plan by id-------------*/
-app.get("/plans/:id", async(req, res, next) => {
-	try{
+app.get("/plans/:id", async (req, res, next) => {
+	try {
 		const priceId = req.params.id;
 		const plan = await getPlanById(priceId);
 		sendResponse(res, {
 			status: httpStatus.OK,
 			success: true,
 			message: "Plan retrieved successfully",
-			data: plan
-		})
-	}catch (e){
-		next(e)
+			data: plan,
+		});
+	} catch (e) {
+		next(e);
 	}
-
-})
+});
 /*------------get plan by id-------------*/
 
-
 /*-----------create customer----------*/
-app.post("/create-customer/:pId", authenticate, async(req, res, next)=> {
-	const {email} = req.user;
-	const {pId} = req.params;
+app.post("/create-customer/:pId", authenticate, async (req, res, next) => {
+	const { email } = req.user;
+	const { pId } = req.params;
 	const payload = {
 		email,
-		pId
+		pId,
+	};
+	try {
+		const customer = await createCustomer(payload);
+	} catch (e) {
+		next(e);
 	}
-	try{
-		const customer = await createCustomer(payload)
-	}catch(e){
-		next(e)
-	}
-})
+});
 /*-----------create customer----------*/
 
-
 /*--------------create subscription------------*/
-app.post("/create-subscription/:pId", authenticate, async(req, res, next)=> {
-
-
-try{
-	const { priceId, tokenId } = req.body;
-	const {pId} = req.params;
-	const email = req.user.email;
-	const sub = await createSubscription({ email, priceId, pId, tokenId });
-	sendResponse(res, {
-		status: httpStatus.OK,
-		success: true,
-		message: "Subscription added successfully!",
-		data: sub
-	})
-}catch (e) {
-	next(e)
-}
-})
-/*--------------create subscription------------*/
-
-
-
-/*-------------cancel subscription------*/
-app.patch("/cancel-subscription/:subId", authenticate, async(req, res, next)=> {
-
-	try{
-		const { subId } = req.params;
-		const { email } = req.user;
-		console.log(subId, email)
-		const data = await cancelSubscription({subId, email})
+app.post("/create-subscription/:pId", authenticate, async (req, res, next) => {
+	try {
+		const { priceId, tokenId } = req.body;
+		const { pId } = req.params;
+		const email = req.user.email;
+		const sub = await createSubscription({ email, priceId, pId, tokenId });
 		sendResponse(res, {
 			status: httpStatus.OK,
 			success: true,
-			message: "Subscription cancelled successfully!",
-			data
-		})
-	}catch (e) {
-		next(e)
+			message: "Subscription added successfully!",
+			data: sub,
+		});
+	} catch (e) {
+		next(e);
 	}
-})
+});
+/*--------------create subscription------------*/
+
+/*-------------cancel subscription------*/
+app.patch(
+	"/cancel-subscription/:subId",
+	authenticate,
+	async (req, res, next) => {
+		try {
+			const { subId } = req.params;
+			const { email } = req.user;
+			console.log(subId, email);
+			const data = await cancelSubscription({ subId, email });
+			sendResponse(res, {
+				status: httpStatus.OK,
+				success: true,
+				message: "Subscription cancelled successfully!",
+				data,
+			});
+		} catch (e) {
+			next(e);
+		}
+	}
+);
 /*-------------cancel subscription------*/
 
 /*-------------get subscription-----------*/
-app.get("/subscription", authenticate, async(req, res, next) => {
-	try{
-		const {email} = req.user;
-		const sub = await getSubscription({email})
+app.get("/subscription", authenticate, async (req, res, next) => {
+	try {
+		const { email } = req.user;
+		const sub = await getSubscription({ email });
 		sendResponse(res, {
 			status: httpStatus.OK,
 			success: true,
 			message: "Subscription retrieved successfully!",
-			data: sub
-		})
-	}catch (e) {
-		next(e)
+			data: sub,
+		});
+	} catch (e) {
+		next(e);
 	}
-})
+});
 /*-------------get subscription-----------*/
 
 /*--------------logout-------------*/
-app.post('/auth/logout', async(req, res, next) => {
+app.post("/auth/logout", async (req, res, next) => {
 	await req.clearCookie();
-	req.headers.authorization = null
+	req.headers.authorization = null;
 	sendResponse(res, {
 		status: httpStatus.OK,
 		success: true,
 		message: "Logged out!",
-		data: null
-	})
+		data: null,
+	});
 });
 /*--------------logout-------------*/
 
-
-
-
-
-
 //error handlers
-app.use(function(req, res, next) {
-	const error = new ApiError(httpStatus.NOT_FOUND,"Resource not found")
-	next(error)
-})
-app.use(function(error, req, res, next) {
-	console.log('error: ', error)
+app.use(function (req, res, next) {
+	const error = new ApiError(httpStatus.NOT_FOUND, "Resource not found");
+	next(error);
+});
+app.use(function (error, req, res, next) {
+	console.log("error: ", error);
 	res.status(error.statusCode || httpStatus.INTERNAL_SERVER_ERROR);
 	sendResponse(res, {
 		success: false,
-		message: error.message || 'Internal Server Error',
-		stack: process.env.NODE_ENV === 'development' ? error.stack : {},
-	})
-})
+		message: error.message || "Internal Server Error",
+		stack: process.env.NODE_ENV === "development" ? error.stack : {},
+	});
+});
 
-module.exports = app
-
+module.exports = app;
