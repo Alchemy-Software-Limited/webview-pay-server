@@ -89,8 +89,7 @@ const limiter = rateLimit({
     max: 20,
     handler: (req, res, next, options) => {
         next(options)
-    }
-
+    },
 })
 app.use(limiter)
 
@@ -140,10 +139,14 @@ app.post('/auth/login', async (req, res, next) => {
 /*--------------login-------------*/
 
 /*---------------verify otp-----------------*/
-app.post('/otp/verify', async (req, res, next) => {
+app.post('/otp/verify', authenticate, async (req, res, next) => {
     try {
+        const { email } = req.user
         const { ...otpData } = req.body
-        const data = await verifyOtp(otpData)
+        const data = await verifyOtp({
+            ...otpData,
+            email,
+        })
         if (!data)
             throw new ApiError(
                 httpStatus.BAD_REQUEST,
