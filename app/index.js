@@ -86,7 +86,6 @@ const limiter = rateLimit({
     statusCode: httpStatus.TOO_MANY_REQUESTS,
     legacyHeaders: false,
     standardHeaders: true,
-    max: 20,
     handler: (req, res, next, options) => {
         next(options)
     },
