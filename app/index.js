@@ -80,7 +80,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use('/images', express.static('public/images'))
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 10, // Limit each IP to 100 requests per 15 minutes
+    limit: 100, // Limit each IP to 100 requests per 15 minutes
     // Other options (e.g., custom messages, status codes) can be configured
     message: 'Too many requests!',
     statusCode: httpStatus.TOO_MANY_REQUESTS,
