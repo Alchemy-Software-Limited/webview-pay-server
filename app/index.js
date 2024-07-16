@@ -258,7 +258,6 @@ app.patch(
         try {
             const { subId } = req.params
             const { email } = req.user
-            console.log(subId, email)
             const data = await cancelSubscription({ subId, email })
             sendResponse(res, {
                 status: httpStatus.OK,
