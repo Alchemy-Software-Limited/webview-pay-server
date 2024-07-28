@@ -18,7 +18,6 @@ const io = require("socket.io")(httpServer, {
 	}
 });
 io.on("connection", function (socket) {
-
 	socket.on("get:subscription", async (data) => {
 		const subscription = await getSubscription(data);
 		const userInfo = {
