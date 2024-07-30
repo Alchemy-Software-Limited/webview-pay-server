@@ -73,15 +73,16 @@ const {
 } = require('../middlewares/error')
 
 const app = express()
-
-const corsOptions = {
-    origin:
-        config.env == 'development' ? config.client_local : config.client_prod, // Allow only this origin
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
-    credentials: true, // Allow credentials
-    allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
-}
-app.use(cors(corsOptions))
+app.use(function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*')
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,PATCH,POST,DELETE')
+    res.header(
+        'Access-Control-Allow-Headers',
+        'Origin, X-Requested-With, Content-Type, Accept'
+    )
+    next()
+})
+app.use(cors())
 app.use(express.json())
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }))
