@@ -1,6 +1,7 @@
 // Define the MongoDB schema and model
 const mongoose = require("mongoose");
 const {Schema} = require("mongoose");
+const {SUBSCRIPTION_STATUS} = require("../lib/customer/constants");
 
 const userSchema = new Schema({
     email:{
@@ -15,6 +16,11 @@ const userSchema = new Schema({
 : {
         type: String,
     },
+    subscriptionStatus: {
+        type: String,
+        enum: [SUBSCRIPTION_STATUS.PREMIUM, SUBSCRIPTION_STATUS.BASIC],
+        default: SUBSCRIPTION_STATUS.BASIC
+    }
 
 }, {
     timestamps: true,

@@ -25,7 +25,11 @@ io.on("connection", function (socket) {
 			subscription
 		}
 		io.emit("user:subscription", userInfo);
-	})})
+	})
+	socket.on("unsubscribe", async (data) => {
+		io.emit("user:unsubscribe", {...data.data})
+	})
+})
 
 
 
