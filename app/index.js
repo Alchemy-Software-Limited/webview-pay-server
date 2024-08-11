@@ -30,23 +30,6 @@
 // 	}
 // });
 /*-------------register user-----------*/
-/*----------------delete all data----------------*/
-// app.get('/delete-all', async (req, res) => {
-// 	try {
-// 		// Get all the collection names in the database
-// 		const collections = await mongoose.connection.db.collections();
-//
-// 		// Iterate over each collection and delete all documents
-// 		for (let collection of collections) {
-// 			await collection.deleteMany({});
-// 		}
-//
-// 		res.send('All documents deleted successfully');
-// 	} catch (error) {
-// 		res.status(500).send('An error occurred while deleting documents');
-// 	}
-// });
-/*----------------delete all data----------------*/
 
 require('dotenv').config()
 const express = require('express')
@@ -73,14 +56,11 @@ const {
 } = require('../middlewares/error')
 
 const app = express()
-app.use(function (req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*')
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,PATCH,POST,DELETE')
-    res.header(
-        'Access-Control-Allow-Headers',
-        'Origin, X-Requested-With, Content-Type, Accept'
-    )
-    next()
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET,PUT,PATCH,POST,DELETE");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
 })
 app.use(cors())
 app.use(express.json())
