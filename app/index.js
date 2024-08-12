@@ -82,7 +82,11 @@ app.use(function (req, res, next) {
     )
     next()
 })
-app.use(cors())
+app.use(
+    cors({
+        origin: 'https://webview-pay.vercel.app',
+    })
+)
 app.use(express.json())
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }))
