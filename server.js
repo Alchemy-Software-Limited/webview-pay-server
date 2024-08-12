@@ -24,7 +24,7 @@ io.on('connection', function (socket) {
             ...data,
             subscription,
         }
-        io.emit('user:subscription', userInfo)
+        io.emit(`user:subscription:${userInfo.email}`, userInfo)
     })
     socket.on('unsubscribe', (data) => {
         io.emit(`user:unsubscribe:${data.data.email}`, { ...data.data })

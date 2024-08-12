@@ -54,11 +54,12 @@ const {
     notFoundErrorHandler,
     globalErrorHandler,
 } = require('../middlewares/error')
+const syncCache = require('../middlewares/sync-cache')
 
 const app = express()
 app.use(
     cors({
-        origin: 'https://webview-pay.vercel.app',
+        origin: process.env.CLIENT_PROD,
         methods: ['GET', 'PUT', 'PATCH', 'POST', 'DELETE'],
         allowedHeaders: [
             'Origin',
@@ -178,9 +179,16 @@ app.post('/otp/verify', authenticate, async (req, res, next) => {
 /*---------------verify otp-----------------*/
 
 /*------get plans -------------*/
-app.get('/plans', async (req, res, next) => {
+app.get('/plans', syncCache, async (req, res, next) => {
     try {
-        const plans = await getPlans()
+        let plans = null
+        if (req.cache.get('plans')) {
+            plans = req.cache.get('plans')
+        } else {
+            plans = await getPlans()
+            req.cache.set('plans', plans)
+        }
+
         sendResponse(res, {
             status: httpStatus.OK,
             success: true,
