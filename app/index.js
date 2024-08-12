@@ -58,13 +58,14 @@ const {
 const app = express()
 app.use(
     cors({
-        origin: 'https://webview-pay.vercel.app', // or '*', if you want to allow all origins
+        origin: 'https://webview-pay.vercel.app',
         methods: ['GET', 'PUT', 'PATCH', 'POST', 'DELETE'],
         allowedHeaders: [
             'Origin',
             'X-Requested-With',
             'Content-Type',
             'Accept',
+            'Authorization',
         ],
     })
 )
