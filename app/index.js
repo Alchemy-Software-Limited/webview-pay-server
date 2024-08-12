@@ -30,23 +30,6 @@
 // 	}
 // });
 /*-------------register user-----------*/
-/*----------------delete all data----------------*/
-// app.get('/delete-all', async (req, res) => {
-// 	try {
-// 		// Get all the collection names in the database
-// 		const collections = await mongoose.connection.db.collections();
-//
-// 		// Iterate over each collection and delete all documents
-// 		for (let collection of collections) {
-// 			await collection.deleteMany({});
-// 		}
-//
-// 		res.send('All documents deleted successfully');
-// 	} catch (error) {
-// 		res.status(500).send('An error occurred while deleting documents');
-// 	}
-// });
-/*----------------delete all data----------------*/
 
 require('dotenv').config()
 const express = require('express')
