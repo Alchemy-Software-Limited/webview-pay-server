@@ -62,6 +62,7 @@ app.use(
         origin: '*',
         methods: ['GET', 'PUT', 'PATCH', 'POST', 'DELETE'],
         allowedHeaders: [
+            'Origin',
             'X-Requested-With',
             'Content-Type',
             'Accept',
