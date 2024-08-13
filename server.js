@@ -13,7 +13,7 @@ db_connect &&
 // Initialize Socket.IO after the server starts listening
 const io = require('socket.io')(httpServer, {
     cors: {
-        origin: 'https://webview-pay.onrender.com', // Allow this origin
+        origin: '*', // Allow this origin
         methods: ['GET', 'POST'], // Specify allowed methods
         allowedHeaders: ['X-Requested-With', 'Content-Type', 'Authorization'],
         credentials: true, // If you need to include cookies or authentication headers
