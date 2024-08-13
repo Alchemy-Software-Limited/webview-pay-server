@@ -59,16 +59,15 @@ const syncCache = require('../middlewares/sync-cache')
 const app = express()
 app.use(
     cors({
-        origin: '*',
+        origin: 'https://webview-pay.onrender.com',
         methods: ['GET', 'PUT', 'PATCH', 'POST', 'DELETE'],
-        allowedHeaders: [
-            'X-Requested-With',
-            'Content-Type',
-            'Accept',
-            'Authorization',
-        ],
+        allowedHeaders: ['X-Requested-With', 'Content-Type', 'Authorization'],
+        credentials: true, // Include if you are sending cookies or auth headers
     })
 )
+
+// Handle preflight requests for all routes
+app.options('*', cors())
 app.use(express.json())
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }))
