@@ -59,7 +59,7 @@ const syncCache = require('../middlewares/sync-cache')
 const app = express()
 app.use(
     cors({
-        origin: process.env.CLIENT_PROD,
+        origin: 'https://webview-pay.vercel.app',
         methods: ['GET', 'PUT', 'PATCH', 'POST', 'DELETE'],
         allowedHeaders: [
             'Origin',
