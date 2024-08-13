@@ -62,7 +62,6 @@ app.use(
         origin: 'https://webview-pay.vercel.app',
         methods: ['GET', 'PUT', 'PATCH', 'POST', 'DELETE'],
         allowedHeaders: [
-            'Origin',
             'X-Requested-With',
             'Content-Type',
             'Accept',
